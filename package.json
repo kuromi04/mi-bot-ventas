@@ -1,0 +1,17 @@
+{
+  "name": "mi-bot-ventas",
+  "version": "1.1.0",
+  "description": "WhatsApp Veterinary Clinic Assistant (Gemini + DeepSeek)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.11.0",
+    "@whiskeysockets/baileys": "latest",
+    "dotenv": "^16.4.5",
+    "pino": "^9.0.0",
+    "pino-pretty": "^11.0.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

@@ -1,0 +1,39 @@
+schema:spec-driven
+
+context: |
+  Tech stack: Node.js, Baileys (WhatsApp), Gemini 1.5 Flash, DeepSeek API.
+  Architecture: Event-driven WhatsApp bot with state management using a Map.
+  Persona: Veterinary Clinic expert.
+  Issue: Survey (poll) flow is redundant, unresponsive to some questions, and low service quality.
+
+strict_tdd: false
+
+rules:
+  proposal:
+    - Include persona definition for the veterinary clinic.
+    - Identify fix for the redundant poll selection.
+  specs:
+    - Define interaction scenarios for clinical inquiries and appointments.
+    - Use RFC 2119 keywords.
+  design:
+    - Document state transitions for poll handling.
+    - Define the prompt engineering strategy for the veterinary persona.
+  tasks:
+    - Group by: Bug Fixes, Persona Implementation, Testing/Validation.
+  apply:
+    - Ensure idiomatic Node.js and maintain existing Baileys integration.
+  verify:
+    - Manual verification via simulation or logs since no automated test runner is available.
+  archive:
+    - Document final persona and flow improvements.
+
+testing:
+  runner: Not found
+  layers:
+    unit: Not available
+    integration: Not available
+    e2e: Not available
+  quality:
+    linter: Not found
+    type_checker: Not found
+    formatter: Not found
