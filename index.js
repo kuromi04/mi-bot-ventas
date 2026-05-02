@@ -1,5 +1,14 @@
 require('dotenv').config();
 
+// --- Validación de Entorno ---
+const REQUIRED_ENV = ['GEMINI_API_KEY', 'DEEPSEEK_API_KEY', 'ADMIN_JID'];
+const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+if (missingEnv.length > 0) {
+    console.error(`\x1b[31m[ERROR CRÍTICO] Faltan variables de entorno: ${missingEnv.join(', ')}\x1b[0m`);
+    console.error(`Por favor, configúralas en tu archivo .env antes de iniciar.`);
+    process.exit(1);
+}
+
 // --- Importaciones de Módulos ---
 const {
     default: makeWASocket,
@@ -19,10 +28,14 @@ const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_BASE_URL = "https://api.deepseek.com/chat/completions";
 
 /**
- * Llama a la API de DeepSeek usando fetch.
+ * Llama a la API de DeepSeek usando fetch con timeout.
  */
 async function callDeepSeek(messages, model = "deepseek-chat") {
     if (!DEEPSEEK_API_KEY) throw new Error("DEEPSEEK_API_KEY no configurada.");
+    
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
     try {
         const response = await fetch(DEEPSEEK_BASE_URL, {
             method: 'POST',
@@ -34,13 +47,27 @@ async function callDeepSeek(messages, model = "deepseek-chat") {
                 model: model,
                 messages: messages,
                 temperature: 0.7
-            })
+            }),
+            signal: controller.signal
         });
+        
+        clearTimeout(timeout);
+        
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(`HTTP ${response.status}: ${errData.error?.message || response.statusText}`);
+        }
+
         const data = await response.json();
         return data.choices[0].message.content;
     } catch (error) {
-        console.error("[ERROR] DeepSeek API:", error);
-        return "Lo siento, tuve un problema al conectar con DeepSeek.";
+        clearTimeout(timeout);
+        if (error.name === 'AbortError') {
+            console.error("[ERROR] DeepSeek API: Tiempo de espera agotado (15s)");
+            return "Lo siento, la respuesta de la IA está tardando demasiado. Por favor, intenta de nuevo.";
+        }
+        console.error("[ERROR] DeepSeek API:", error.message);
+        return "Lo siento, tuve un problema al conectar con el servicio de IA.";
     }
 }
 
